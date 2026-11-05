@@ -1,5 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
+using Microsoft.AspNetCore.Authorization;
 using VulnShop.Api.Common;
 using VulnShop.Api.Labs.Lab04;
 using VulnShop.Api.Labs.Lab12;

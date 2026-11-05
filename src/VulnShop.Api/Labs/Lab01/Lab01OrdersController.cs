@@ -17,7 +17,7 @@ namespace VulnShop.Api.Labs.Lab01;
 public sealed class Lab01OrdersController(Db db) : ControllerBase
 {
     [HttpGet("orders/{id:long}")]
-    public IActionResult GetOrder(long id, ILogger<Lab01OrdersController> logger)
+    public IActionResult GetOrder(long id)
     {
         var rows = db.Query(
             "SELECT id, owner_username, items, shipping_address, total FROM lab01_orders WHERE id = $id",
@@ -30,14 +30,12 @@ public sealed class Lab01OrdersController(Db db) : ControllerBase
         // RANJIVO: nema provjere vlasništva – vraća se narudžba bilo kojeg korisnika.
         var order = rows[0];
 
-        logger.LogInformation(
-        "Order object: {Order}",
-        JsonSerializer.Serialize(
-            order,
-            new JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
+        var loggedInUser = HttpContext.Items["VulnShop.CurrentUser"] as AuthUser;
+
+        if (!((loggedInUser?.Role == "USER" && loggedInUser?.Username == order.GetString("owner_username")) || loggedInUser?.Role == "ADMIN"))
+        {
+            return NotFound();
+        }
 
         return Ok(new
         {
